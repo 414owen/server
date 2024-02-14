@@ -3836,6 +3836,10 @@ public:
     const Type_handler *res= type_handler_base();
     return res ? res : this;
   }
+  virtual const Type_handler *type_handler_for_implicit_upgrade() const
+  {
+    return this;
+  }
   virtual const Type_handler *type_handler_for_comparison() const= 0;
   virtual const Type_handler *type_handler_for_native_format() const
   {
@@ -3981,9 +3985,12 @@ public:
   virtual bool validate_implicit_default_value(THD *thd,
                                                const Column_definition &def)
                                                const;
-  // Automatic upgrade, e.g. for ALTER TABLE t1 FORCE
-  virtual void Column_definition_implicit_upgrade(Column_definition *c) const
-  { }
+  /*
+    Automatic upgrade, e.g. for REPAIR or ALTER TABLE t1 FORCE
+    - from the data type specified in c->type_handler()
+    - to the data type specified in "this"
+  */
+  virtual void Column_definition_implicit_upgrade(Column_definition *c) const;
   // Validate CHECK constraint after the parser
   virtual bool Column_definition_validate_check_constraint(THD *thd,
                                                            Column_definition *c)
@@ -7000,6 +7007,7 @@ public:
   {
     return MYSQL_TYPE_VARCHAR;
   }
+  const Type_handler *type_handler_for_implicit_upgrade() const override;
   const Type_handler *type_handler_for_tmp_table(const Item *item) const override
   {
     return varstring_type_handler(item);
@@ -7007,7 +7015,6 @@ public:
   uint32 max_display_length_for_field(const Conv_source &src) const override;
   void show_binlog_type(const Conv_source &src, const Field &dst, String *str)
     const override;
-  void Column_definition_implicit_upgrade(Column_definition *c) const override;
   bool Column_definition_fix_attributes(Column_definition *c) const override;
   bool Column_definition_prepare_stage2(Column_definition *c,
                                         handler *file,

@@ -8804,11 +8804,18 @@ bool Type_handler_string_result::union_element_finalize(Item_type_holder* item) 
 
 /***************************************************************************/
 
-void Type_handler_var_string::
+
+const Type_handler *
+Type_handler_var_string::type_handler_for_implicit_upgrade() const
+{
+  return &type_handler_varchar;
+}
+
+
+void Type_handler::
   Column_definition_implicit_upgrade(Column_definition *c) const
 {
-  // Change old VARCHAR to new VARCHAR
-  c->set_handler(&type_handler_varchar);
+  c->set_handler(this);
 }
 
 
