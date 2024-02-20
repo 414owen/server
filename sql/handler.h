@@ -3291,6 +3291,7 @@ public:
     inserter.
   */
   /* Statistics  variables */
+  ulonglong rows_changed;   /* This is just to get columnstore to compile */
   struct rows_stats rows_stats;
   /* One bigger than needed to avoid to test if key == MAX_KEY */
   ulonglong index_rows_read[MAX_KEY+1];
